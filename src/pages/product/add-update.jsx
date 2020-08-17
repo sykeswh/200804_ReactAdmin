@@ -5,6 +5,7 @@ import {ArrowLeftOutlined} from '@ant-design/icons'
 import LinkButton from '../../components/link-button'
 import {reqCategorys,reqAddOrUpdateProduct} from '../../api'
 import PicturesWall from './pictures-wall'
+import memoryUtils from '../../utils/memoryUtils'
 import RichTextDitor from './rich-text-editor'
 
 const {Item} = Form
@@ -113,11 +114,14 @@ export default class ProductAddUpdate extends PureComponent{
         this.getCategorys('0')
     }
     UNSAFE_componentWillMount(){
-        const product = this.props.location.state
+        const product = memoryUtils.product
         //保存是否是更新的标识
-        this.isUpdate = !!product
+        this.isUpdate = !!product._id
         //保存传过来的商品信息(如果没有，保存是{})
         this.product = product || {}
+    }
+    componentWillUnmount(){
+        memoryUtils.product={}
     }
     render(){
         const {isUpdate,product} = this

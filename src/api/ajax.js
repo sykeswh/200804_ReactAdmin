@@ -1,6 +1,7 @@
 import axios from 'axios'
 // import qs from 'qs'
 import {message} from 'antd'
+
 export default function ajax(url,data={},type='GET'){
     return new Promise((resolve,response) =>{
         let promise

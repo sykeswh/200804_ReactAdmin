@@ -2,12 +2,11 @@ import React,{Component} from 'react'
 import {withRouter} from 'react-router-dom'
 import { Modal } from 'antd'
 import {QuestionCircleOutlined} from '@ant-design/icons'
+import {connect} from 'react-redux'
 
 import {reqWeather} from '../../api/index'
 import {formateDate} from '../../utils/dateUtils'
-import memoryUtils from '../../utils/memoryUtils'
-import menuList from '../../config/menuConfig'
-import storageUtils from '../../utils/storageUtils'
+import {logout} from '../../redux/action'
 import './header.less'
 
 const { confirm } = Modal;
@@ -31,31 +30,13 @@ class Header extends Component{
         const weather = await reqWeather('大悟县')
         this.setState({weather})
     }
-    //查找路由名称
-    getTitle =() =>{
-        const path = this.props.location.pathname
-        let title
-        menuList.forEach(item =>{
-            if (item.key === path) {
-                title = item.title
-            }else if (item.children) {
-                const cItem = item.children.find(cItem => path.indexOf(cItem.key) ===0)
-                if (cItem) {
-                    title = cItem.title
-                }
-            }
-        })
-        return title
-    }
     //退出登录
     getOut = () =>{
         confirm({
             title: '确认退出吗?',
             icon:<QuestionCircleOutlined />,
             onOk:() => {
-                storageUtils.removeUser()
-                memoryUtils.user = {}
-                this.props.history.replace('/login')
+                this.props.logout()
             },
         })
     }
@@ -69,8 +50,8 @@ class Header extends Component{
     }
     render(){
         const {currentTime,weather} = this.state
-        const {username} = memoryUtils.user
-        const title = this.getTitle()
+        const {username} = this.props.user
+        const title = this.props.headTitle
         return (
             <div className="header">
                 <div className="header-top">
@@ -88,4 +69,7 @@ class Header extends Component{
         )
     }
 }
-export default withRouter(Header)
+export default connect(
+    state =>({headTitle:state.headTitle,user:state.user}),
+    {logout}
+)(withRouter(Header))

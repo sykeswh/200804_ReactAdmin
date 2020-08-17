@@ -1,11 +1,12 @@
 import React,{Component} from 'react'
 import {Link,withRouter} from 'react-router-dom'
 import { Menu } from 'antd'
+import {connect} from 'react-redux'
 
 import './left-nav.less'
 import logo from '../../assets/images/logo.png'
 import menuList from '../../config/menuConfig'
-import memoryUtils from '../../utils/memoryUtils'
+import {setHeadTitle} from '../../redux/action'
 
 const { SubMenu } = Menu;
 /*
@@ -15,8 +16,8 @@ class LeftNav extends Component{
     //判断当前登陆用户对item是否有权限
     Auth = (item) =>{
        const {key,isPublic} = item
-       const menus = memoryUtils.user.role.menus
-       const username = memoryUtils.user.username
+       const menus = this.props.user.role.menus
+       const username = this.props.user.username
        if (username==='admin' || isPublic || menus.indexOf(key)!==-1) {
            return true
        }else if(item.children){
@@ -60,7 +61,13 @@ class LeftNav extends Component{
        return menuList.reduce((pre,item)=>{
            if (this.Auth(item)) {
                 if (!item.children) {
-                    pre.push((<Menu.Item key={item.key} icon={<item.icon />}><Link to={item.key}>{item.title}</Link></Menu.Item>))
+                    //判断当前的item是不是和路径一致
+                    if (item.key ==='/home' && path==='/') {
+                        this.props.setHeadTitle(item.title)
+                    }else if (item.key===path || path.indexOf(item.key)===0) {
+                        this.props.setHeadTitle(item.title)
+                    }
+                    pre.push((<Menu.Item key={item.key} icon={<item.icon />}><Link to={item.key} onClick={()=>this.props.setHeadTitle(item.title)}>{item.title}</Link></Menu.Item>))
                 }else{
                     const cItem = item.children.find(cItem => path.indexOf(cItem.key)===0)  
                     if (cItem) {
@@ -82,7 +89,7 @@ class LeftNav extends Component{
         this.MenuNodes = this.getMenuNodes(menuList)
     }
     render(){
-        //得到当前请求的路由路径
+        //得到当前请求的路由路径,来对此导航栏进行判断是否默认
         let path = this.props.location.pathname
         if (path.indexOf('/product')===0) {
             path = '/product'
@@ -91,13 +98,13 @@ class LeftNav extends Component{
         const openKey = this.openKey
         return (
               <div className="left-nav">
-                  <Link to='/' className="left-nav-header"> 
+                  <Link to='/' className="left-nav-header" onClick={()=>this.props.setHeadTitle('首页')}> 
                     <img src={logo} alt="logo"/>
                     <h1>硅谷后台</h1>
                   </Link>
                   <Menu
                     selectedKeys={[path]} //默认选中
-                    defaultOpenKeys={[openKey]}
+                    defaultOpenKeys={[openKey]} //当前item的子列表需要打开
                     mode="inline"
                     theme="dark"
                   >
@@ -114,4 +121,7 @@ withRouter高阶组件
 包装非路由组件，返回一个新的组件
 新的组件向非路由组件传递3个属性：history/location/match
 */
-export default withRouter(LeftNav)
+export default connect(
+    state =>({user:state.user}),
+    {setHeadTitle}
+)(withRouter(LeftNav))

@@ -4,7 +4,7 @@ import { PlusOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import {reqCategorys,reqUpdateCategory,reqAddCategory} from '../../api/index'
 import AddForm from './add-form/add-form'
 import UpdateForm from './update-form/update-form'
-
+import LinkButton from '../../components/link-button'
 /* 
 品类管理路由
 */
@@ -31,8 +31,8 @@ export default class Category extends Component{
           width:300,
           render: (category)=>(
               <span>
-                <a href="#!" style={{marginRight:'10px'}} onClick={()=> this.showUpdate(category)}>修改分类</a>
-                {this.state.parentId==='0' ? <a href="#!" onClick={()=> this.showSubCategorys(category)}>查看子分类</a>:null}
+                <LinkButton style={{marginRight:'10px'}} onClick={()=> this.showUpdate(category)}>修改分类</LinkButton>
+                {this.state.parentId==='0' ? <LinkButton onClick={()=> this.showSubCategorys(category)}>查看子分类</LinkButton>:null}
               </span>
           )
         }
@@ -57,16 +57,7 @@ export default class Category extends Component{
          message.error('获取分类列表失败！')
        }
     }
-    //显示指定一级分类对象的子分类
-    showSubCategorys = (category) =>{
-         this.setState({
-           parentId:category._id,
-           parentName:category.name
-          },()=>{//在状态更新且重新render()后执行
-             this.getCategorys()
-          })
-        
-    }
+   
     //显示一级分类列表
     showCategorys = () =>{
         this.setState({
@@ -80,6 +71,16 @@ export default class Category extends Component{
       this.setState({
         visible: 1,
       });
+    }
+     //显示指定一级分类对象的子分类
+    showSubCategorys = (category) =>{
+         this.setState({
+           parentId:category._id,
+           parentName:category.name
+          },()=>{//在状态更新且重新render()后执行
+             this.getCategorys()
+          })
+        
     }
     showUpdate = (category) =>{
       this.category = category
@@ -151,7 +152,7 @@ export default class Category extends Component{
       const category = this.category || {name:''}
       const title = parentId==='0' ? '一级分类列表' : (
         <span>
-            <a href="#!" onClick={this.showCategorys}>一级分类列表</a>
+            <LinkButton onClick={this.showCategorys}>一级分类列表</LinkButton>
             <ArrowRightOutlined style={{marginLeft:'10px',marginRight:'10px'}}/>
             <span>{parentName}</span>
         </span>
